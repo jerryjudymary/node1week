@@ -15,7 +15,7 @@ app.get("/detail.html", (req, res) => {
     res.sendFile(__dirname + '/detail.html');
 });
 
-const boardRouter = require('./routers/boardRouter');
+const boardRouter = require('./routers/boardrouter');
 const Posts = require('./schemas/posts');
 
 app.listen(port, () => {
