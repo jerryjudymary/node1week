@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>게시판</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            show_comment()
+        });
+
+        function save_post() {
+            let postbody = $('#postbody').val()
+            let posttitle = $('#posttitle').val()
+            let postwriter = $('#postwriter').val()
+            let postpassword = $('#postpassword').val()
+            if (postwriter == false) {
+                alert('이름을 입력해주세요!')
+            } else if (posttitle == false) {
+                alert('제목을 입력해주세요!')
+            } else if (postbody == false) {
+                alert('내용을 입력해주세요!')
+            } else if (postpassword == false) {
+                alert('비밀번호를 입력해주세요!')    
+            } else {
+            $.ajax({
+                type: "POST",
+                url: "/posts",
+                data: {
+                postbody: postbody,
+                posttitle: posttitle,
+                postpassword: postpassword,
+                postwriter: postwriter,
+                postId: Date.now(),
+                },
+                success: function (response) {
+                    alert(response["msg"])
+                    window.location.reload()
+                }
+            })};
+        }
+
+        function deletePost(id) {
+let pw = $('#pwdelete').val()
+  $.ajax({
+    type: "DELETE",
+    url: `/posts/` + id,
+    data: {pw: pw},
+    success: function (response) {
+        alert(response["msg"])
+        window.location.reload()
+    },
+  });
+}
+
+function changePost(id) {
+    let changeval = $('#changeinput').val()
+    let pw = $('#pwdelete').val()
+  $.ajax({
+    type: "PUT",
+    url: `/posts/` + id,
+    data: { pw: pw,
+      changeval: changeval,
+    },
+    
+    success: function (response) {
+        alert(response["msg"])
+        window.location.reload();
+    },
+  });
+}
+
+        function show_comment() {
+            $.ajax({
+                type: "GET",
+                url: "/posts",
+                data: {},
+                success: function (response) {
+                    let rows = (response['posts'])
+                        for (let i = 0; i < rows.length; i++) {
+                            let postwriter = rows[i]['postwriter']
+                            let posttitle = rows[i]['posttitle']
+                            let createdAt = rows[i]['createdAt']
+                            let postId = rows[i]['postId']
+                                let temp_html = `
+                                            <p><button onclick="show_detail(${postId})">조회</button>제목: ${posttitle},  이름: ${postwriter},  날짜: ${createdAt}</p>
+                                            `
+                                    $('#comment-list').append(temp_html)
+                                    
+
+                        }
+                }
+            });
+        }
+        function show_detail(id) {
+            $.ajax({
+                type: "GET",
+                url: "/posts/" + id,
+                data: {},
+                success: function (response) {
+                    let rows = (response['detail'])
+                        for (let i = 0; i < rows.length; i++) {
+                            let postwriter = rows[i]['postwriter']
+                            let posttitle = rows[i]['posttitle']
+                            let createdAt = rows[i]['createdAt']
+                            let postbody = rows[i]['postbody']
+                            let postId = rows[i]['postId']
+                                let temp_html = `
+                                            <p>제목: ${posttitle}, 이름: ${postwriter}, 날짜: ${createdAt}</p>
+                                            <p><내용></p>
+                                            <p>${postbody}</p>
+                                            
+                                            <p>비밀번호: <input id = 'pwdelete' type="text"/></p>
+                                            <button onclick = 'deletePost(${postId})'>삭제</button>
+                                            <p>수정내용: <input id = 'changeinput' type="text"/></p>
+                                            <button onclick = 'changePost(${postId})'>수정(비밀번호를 입력하세요)</button>`
+                                    $('#comment-detail').html(temp_html)
+                        }
+                }
+            });
+        }
+    </script>
+</head>
+<body>
+    <h1>유승재의 게시판입니다.</h1>
+    <p>제목: <input id = 'posttitle' type="text"/></p>
+    <p>작성자: <input id = 'postwriter' type="text"/></p>
+    <p>비밀번호: <input id = 'postpassword' type="text"/></p>
+    <p>작성내용: <input id = 'postbody' type="text"/></p>
+    <button onclick='save_post()'>새 게시물 등록</button>
+    <div id="comment-list"></div>
+    <p>
+        .
+    </p>
+    <p>
+        .
+    </p>
+    <p>-----이하는 조회한 게시글입니다-----</p>
+    <div id="comment-detail"></div>
+</body>
+</html>
